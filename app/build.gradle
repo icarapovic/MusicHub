@@ -51,4 +51,5 @@ dependencies {
     implementation deps.material
     implementation deps.constraintLayout
     implementation deps.media
+    implementation deps.exoPlayer
 }
