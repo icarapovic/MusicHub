@@ -1,4 +1,4 @@
-package dev.chapz.musichub
+package dev.chapz.musichub.ui
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.pm.PackageManager.PERMISSION_DENIED
@@ -6,16 +6,16 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dev.chapz.musichub.databinding.ActivityMainBinding
+import dev.chapz.musichub.databinding.ActivityHostBinding
 
-class MainActivity : AppCompatActivity() {
+class HostActivity : AppCompatActivity() {
 
-    private lateinit var ui: ActivityMainBinding
+    private lateinit var ui: ActivityHostBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        ui = ActivityMainBinding.inflate(layoutInflater)
+        ui = ActivityHostBinding.inflate(layoutInflater)
         setContentView(ui.root)
 
         checkPermissions()
@@ -46,8 +46,6 @@ class MainActivity : AppCompatActivity() {
             checkPermissions()
         } else if(requestCode == 101 && grantResults.first() == PERMISSION_DENIED) {
             // display info + button in UI
-        } else if(grantResults.first() == PERMISSION_GRANTED) {
-            // TODO load data
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

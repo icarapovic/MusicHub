@@ -15,7 +15,7 @@
         android:theme="@style/Theme.MusicHub">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.HostActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
