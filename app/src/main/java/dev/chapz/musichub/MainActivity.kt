@@ -5,7 +5,6 @@ import android.content.pm.PackageManager.PERMISSION_DENIED
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.chapz.musichub.databinding.ActivityMainBinding
 
@@ -45,13 +44,10 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if(requestCode == 100 && grantResults.first() == PERMISSION_DENIED) {
             checkPermissions()
-            Toast.makeText(this, "First & denied", Toast.LENGTH_SHORT).show()
         } else if(requestCode == 101 && grantResults.first() == PERMISSION_DENIED) {
             // display info + button in UI
-            Toast.makeText(this, "Rationale & denied", Toast.LENGTH_SHORT).show()
         } else if(grantResults.first() == PERMISSION_GRANTED) {
-            // do continue
-            Toast.makeText(this, "Granted", Toast.LENGTH_SHORT).show()
+            // TODO load data
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
