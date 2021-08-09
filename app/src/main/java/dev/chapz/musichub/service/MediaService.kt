@@ -1,43 +1,50 @@
 package dev.chapz.musichub.service
 
+import android.app.PendingIntent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.util.Log
 import androidx.media.MediaBrowserServiceCompat
-import dev.chapz.musichub.client.MediaEngine
-import dev.chapz.musichub.client.MediaEngineImpl
 
-class MediaService : MediaBrowserServiceCompat() {
+open class MediaService : MediaBrowserServiceCompat() {
 
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaSessionCallback: MediaSessionCompat.Callback
-    private lateinit var engine: MediaEngine
 
     override fun onCreate() {
         super.onCreate()
 
-        // create a new MediaSession and assign the token
-        mediaSession = MediaSessionCompat(this,"MediaService")
-        sessionToken = mediaSession.sessionToken
-
-        // set media session callback handler
+        // Intent to launch the main activity of this app
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName).let {
+            PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
+        }
         mediaSessionCallback = MediaSessionCallback()
-        mediaSession.setCallback(mediaSessionCallback)
 
-        engine = MediaEngineImpl(this)
+        mediaSession = MediaSessionCompat(this, "MediaService").apply {
+            setCallback(mediaSessionCallback)
+            setSessionActivity(launchIntent)
+            isActive = true
+        }
+
+        sessionToken = mediaSession.sessionToken
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot {
         val extras = Bundle()
-        return BrowserRoot("ROOT", extras)
+        Log.d("---", "return root")
+        return BrowserRoot("service root", extras)
     }
 
     override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaBrowserCompat.MediaItem>>) {
-        result.detach()
+        Log.d("---", "onLoadChildren, parentId: $parentId")
+        result.sendResult(mutableListOf())
     }
 
     override fun onDestroy() {
-        mediaSession.release()
-        super.onDestroy()
+        mediaSession.run {
+            isActive = false
+            release()
+        }
     }
 }

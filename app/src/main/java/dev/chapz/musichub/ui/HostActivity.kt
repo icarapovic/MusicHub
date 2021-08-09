@@ -3,14 +3,16 @@ package dev.chapz.musichub.ui
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.pm.PackageManager.PERMISSION_DENIED
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.chapz.musichub.databinding.ActivityHostBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HostActivity : AppCompatActivity() {
 
     private lateinit var ui: ActivityHostBinding
+    private val hostViewModel: HostViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,6 +21,8 @@ class HostActivity : AppCompatActivity() {
         setContentView(ui.root)
 
         checkPermissions()
+
+        hostViewModel.connectService()
     }
 
     private fun checkPermissions() {
