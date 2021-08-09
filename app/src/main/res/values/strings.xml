@@ -3,4 +3,9 @@
 
     <!-- Bottom nav -->
     <string name="menu_item_songs">Songs</string>
+
+    <!-- Notificaiton Channel -->
+    <string name="notification_channel">Now Playing</string>
+    <string name="notification_channel_description">Shows what music is currently playing in MusicHub</string>
+
 </resources>
