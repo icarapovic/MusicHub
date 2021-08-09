@@ -3,6 +3,9 @@ ext.versions = [
         kotlin: "1.5.21",
         navigation: "2.3.5",
         koin: "3.1.2",
+        exoPlayer: "2.14.2",
+        coroutine: "1.1.0",
+        glide: "4.11.0",
 
         // App
         compileSdk: 30,
@@ -21,10 +24,20 @@ ext.deps = [
 
         // Media
         media: 'androidx.media:media:1.4.1',
-        exoPlayer: 'com.google.android.exoplayer:exoplayer:2.14.2',
+        exoPlayer: "com.google.android.exoplayer:exoplayer:${versions.exoPlayer}",
+        mediaSession: "com.google.android.exoplayer:extension-mediasession:${versions.exoPlayer}",
+        cast: "com.google.android.exoplayer:extension-cast:${versions.exoPlayer}",
 
         // Koin
         koin: "io.insert-koin:koin-android:${versions.koin}",
+
+        // Coroutine
+        coroutineCore: "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutine}",
+        coroutineAndroid: "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutine}",
+
+        // Glide
+        glide: "com.github.bumptech.glide:glide:${versions.glide}",
+        glideKapt: "com.github.bumptech.glide:compiler:${versions.glide}"
 ]
 
 ext.props = [

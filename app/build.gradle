@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 apply from: '../dependencies.gradle'
@@ -52,7 +53,11 @@ dependencies {
     implementation deps.constraintLayout
     implementation deps.media
     implementation deps.exoPlayer
+    implementation deps.mediaSession
+    implementation deps.cast
     implementation deps.navigationUi
     implementation deps.navigationFragment
     implementation deps.koin
+    implementation deps.glide
+    kapt deps.glideKapt
 }
