@@ -54,4 +54,5 @@ dependencies {
     implementation deps.exoPlayer
     implementation deps.navigationUi
     implementation deps.navigationFragment
+    implementation deps.koin
 }

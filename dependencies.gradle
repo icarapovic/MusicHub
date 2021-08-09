@@ -2,6 +2,7 @@ ext.versions = [
         gradlePlugin: "7.0.0",
         kotlin: "1.5.21",
         navigation: "2.3.5",
+        koin: "3.1.2",
 
         // App
         compileSdk: 30,
@@ -20,7 +21,10 @@ ext.deps = [
 
         // Media
         media: 'androidx.media:media:1.4.1',
-        exoPlayer: 'com.google.android.exoplayer:exoplayer:2.14.2'
+        exoPlayer: 'com.google.android.exoplayer:exoplayer:2.14.2',
+
+        // Koin
+        koin: "io.insert-koin:koin-android:${versions.koin}",
 ]
 
 ext.props = [
