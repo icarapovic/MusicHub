@@ -7,5 +7,9 @@
     <!-- Notificaiton Channel -->
     <string name="notification_channel">Now Playing</string>
     <string name="notification_channel_description">Shows what music is currently playing in MusicHub</string>
+    <string name="menu_item_album">Albums</string>
+    <string name="menu_item_artist">Artists</string>
+    <string name="menu_item_genre">Genres</string>
+    <string name="menu_item_playlists">Playlists</string>
 
 </resources>
