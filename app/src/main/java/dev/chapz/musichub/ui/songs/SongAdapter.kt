@@ -1,18 +1,18 @@
 package dev.chapz.musichub.ui.songs
 
 import android.annotation.SuppressLint
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.chapz.musichub.databinding.ItemSongBinding
-import dev.chapz.musichub.repository.Song
 
 class SongAdapter : RecyclerView.Adapter<SongAdapter.ViewHolder>() {
 
-    private var songs: List<Song> = emptyList()
+    private var songs: List<MediaItem> = emptyList()
 
     @SuppressLint("NotifyDataSetChanged")
-    public fun setData(songList: List<Song>) {
+    public fun setData(songList: List<MediaItem>) {
         songs = songList
         notifyDataSetChanged()
     }
@@ -24,7 +24,7 @@ class SongAdapter : RecyclerView.Adapter<SongAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.songTitle.text = songs[position].title
+        holder.binding.songTitle.text = songs[position].description.title
     }
 
     override fun getItemId(position: Int) = position.toLong()

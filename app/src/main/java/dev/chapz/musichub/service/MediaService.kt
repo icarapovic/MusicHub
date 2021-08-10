@@ -2,15 +2,17 @@ package dev.chapz.musichub.service
 
 import android.app.PendingIntent
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.session.MediaSessionCompat
-import android.util.Log
 import androidx.media.MediaBrowserServiceCompat
+import dev.chapz.musichub.repository.MediaManager
+import dev.chapz.musichub.repository.MediaManager.Companion.ROOT
 
 open class MediaService : MediaBrowserServiceCompat() {
 
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaSessionCallback: MediaSessionCompat.Callback
+    private val mediaManager = MediaManager()
 
     override fun onCreate() {
         super.onCreate()
@@ -31,14 +33,11 @@ open class MediaService : MediaBrowserServiceCompat() {
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot {
-        val extras = Bundle()
-        Log.d("---", "return root")
-        return BrowserRoot("service root", extras)
+        return BrowserRoot(ROOT, rootHints)
     }
 
-    override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaBrowserCompat.MediaItem>>) {
-        Log.d("---", "onLoadChildren, parentId: $parentId")
-        result.sendResult(mutableListOf())
+    override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaItem>>) {
+        result.sendResult(mediaManager.getChildrenForRoot(parentId))
     }
 
     override fun onDestroy() {

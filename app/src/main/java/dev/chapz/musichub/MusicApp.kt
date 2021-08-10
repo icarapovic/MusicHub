@@ -1,12 +1,11 @@
 package dev.chapz.musichub
 
 import android.app.Application
-import android.content.ComponentName
 import dev.chapz.musichub.repository.SongRepository
 import dev.chapz.musichub.repository.SongRepositoryImpl
-import dev.chapz.musichub.service.MediaService
 import dev.chapz.musichub.service.MediaServiceConnection
 import dev.chapz.musichub.ui.HostViewModel
+import dev.chapz.musichub.ui.songs.SongViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -20,11 +19,12 @@ class MusicApp : Application() {
     }
 
     private val mediaModule = module {
-        single { MediaServiceConnection.getInstance(androidContext(), ComponentName(androidContext(), MediaService::class.java)) }
+        single { MediaServiceConnection(androidContext()) }
     }
 
     private val viewModelModule = module {
-        viewModel { HostViewModel(get()) }
+        viewModel { HostViewModel() }
+        viewModel { SongViewModel(get()) }
     }
 
     override fun onCreate() {

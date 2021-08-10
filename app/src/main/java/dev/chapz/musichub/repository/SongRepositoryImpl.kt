@@ -1,9 +1,14 @@
 package dev.chapz.musichub.repository
 
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.database.Cursor
 import android.provider.BaseColumns
 import android.provider.MediaStore
+import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
+import android.support.v4.media.MediaMetadataCompat
+import dev.chapz.musichub.service.*
 
 class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongRepository {
 
@@ -23,7 +28,7 @@ class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongReposito
 
     private val songIdSelection = MediaStore.Audio.AudioColumns._ID + " = ?"
 
-    override fun getAllSongs(): List<Song> {
+    override fun getAllSongs(): MutableList<MediaItem> {
         val cursor = queryMediaStoreSongs()
         return extractSongsFromCursor(cursor)
     }
@@ -38,8 +43,8 @@ class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongReposito
         )
     }
 
-    private fun extractSongsFromCursor(cursor: Cursor?): List<Song> {
-        val songs = arrayListOf<Song>()
+    private fun extractSongsFromCursor(cursor: Cursor?): MutableList<MediaItem> {
+        val songs = arrayListOf<MediaItem>()
 
         // if the cursor is not null
         cursor?.let { c ->
@@ -55,10 +60,10 @@ class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongReposito
         return songs
     }
 
-    private fun getSongFromCursor(cursor: Cursor): Song {
-        val id = cursor.getLong(MediaStore.Audio.AudioColumns._ID)
+    private fun getSongFromCursor(cursor: Cursor): MediaItem {
+        val id = cursor.getString(MediaStore.Audio.AudioColumns._ID)
         val title = cursor.getString(MediaStore.Audio.AudioColumns.TITLE)
-        val trackNumber = cursor.getInt(MediaStore.Audio.AudioColumns.TRACK)
+        val trackNumber = cursor.getLong(MediaStore.Audio.AudioColumns.TRACK)
         val year = cursor.getInt(MediaStore.Audio.AudioColumns.YEAR)
         val duration = cursor.getLong(MediaStore.Audio.AudioColumns.DURATION)
         val dateModified = cursor.getLong(MediaStore.Audio.AudioColumns.DATE_MODIFIED)
@@ -68,16 +73,17 @@ class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongReposito
         val artistName = cursor.getStringOrNull(MediaStore.Audio.AudioColumns.ARTIST)
         val composer = cursor.getStringOrNull(MediaStore.Audio.AudioColumns.COMPOSER)
 
-        return Song(id,
-            title,
-            trackNumber,
-            year,
-            duration,
-            dateModified,
-            albumId,
-            albumName ?: "",
-            artistId,
-            artistName ?: "",
-            composer ?: "")
+        val metadataBuilder = MediaMetadataCompat.Builder()
+        metadataBuilder.id = id
+        metadataBuilder.title = title
+        metadataBuilder.displayTitle = title
+        metadataBuilder.trackNumber = trackNumber
+        metadataBuilder.duration = duration
+        metadataBuilder.album = albumName
+        metadataBuilder.artist = artistName
+        metadataBuilder.mediaUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toLong()).toString()
+        metadataBuilder.flag = FLAG_PLAYABLE
+
+        return MediaItem(metadataBuilder.build().description, FLAG_PLAYABLE)
     }
 }

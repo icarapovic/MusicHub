@@ -21,8 +21,6 @@ class HostActivity : AppCompatActivity() {
         setContentView(ui.root)
 
         checkPermissions()
-
-        hostViewModel.connectService()
     }
 
     private fun checkPermissions() {
