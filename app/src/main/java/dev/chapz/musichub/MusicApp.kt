@@ -1,6 +1,8 @@
 package dev.chapz.musichub
 
 import android.app.Application
+import dev.chapz.musichub.repository.AlbumRepository
+import dev.chapz.musichub.repository.AlbumRepositoryImpl
 import dev.chapz.musichub.repository.SongRepository
 import dev.chapz.musichub.repository.SongRepositoryImpl
 import dev.chapz.musichub.service.MediaServiceConnection
@@ -16,6 +18,7 @@ class MusicApp : Application() {
 
     private val repositoryModule = module {
         single<SongRepository> { SongRepositoryImpl(androidContext().contentResolver) }
+        single<AlbumRepository> { AlbumRepositoryImpl(androidContext().contentResolver) }
     }
 
     private val mediaModule = module {
