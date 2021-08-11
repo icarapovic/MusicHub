@@ -7,13 +7,13 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.Albums
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
+import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
 import android.support.v4.media.MediaMetadataCompat
 import dev.chapz.musichub.service.*
 
 class AlbumRepositoryImpl(private val mediaStore: ContentResolver) : AlbumRepository {
 
-    private val songProjection = arrayOf(
+    private val albumProjection = arrayOf(
         Albums._ID,
         Albums.ALBUM,
         Albums.ARTIST,
@@ -29,16 +29,16 @@ class AlbumRepositoryImpl(private val mediaStore: ContentResolver) : AlbumReposi
 
     private fun queryMediaStoreAlbums(selection: String? = null, selectionArgs: Array<String>? = null): Cursor? {
         return mediaStore.query(
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL),
-            songProjection,
+            Albums.getContentUri(MediaStore.VOLUME_EXTERNAL),
+            albumProjection,
             selection,
             selectionArgs,
-            MediaStore.Audio.Media.DEFAULT_SORT_ORDER
+            Albums.DEFAULT_SORT_ORDER
         )
     }
 
     private fun extractAlbumsFromCursor(cursor: Cursor?): MutableList<MediaItem> {
-        val songs = arrayListOf<MediaItem>()
+        val albums = arrayListOf<MediaItem>()
 
         // if the cursor is not null
         cursor?.let { c ->
@@ -46,12 +46,12 @@ class AlbumRepositoryImpl(private val mediaStore: ContentResolver) : AlbumReposi
             if (c.moveToFirst()) {
                 // iterate rows and create song objects
                 do {
-                    songs.add(getMediaItemFromCursor(c))
+                    albums.add(getMediaItemFromCursor(c))
                 } while (c.moveToNext())
             }
         }
 
-        return songs
+        return albums
     }
 
     private fun getMediaItemFromCursor(cursor: Cursor): MediaItem {
@@ -69,8 +69,8 @@ class AlbumRepositoryImpl(private val mediaStore: ContentResolver) : AlbumReposi
         metadataBuilder.albumArtUri = albumArtUri
         metadataBuilder.trackCount = trackCount
         metadataBuilder.mediaUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toLong()).toString()
-        metadataBuilder.flag = FLAG_PLAYABLE
+        metadataBuilder.flag = FLAG_BROWSABLE
 
-        return MediaItem(metadataBuilder.build().description, FLAG_PLAYABLE)
+        return MediaItem(metadataBuilder.build().description, FLAG_BROWSABLE)
     }
 }

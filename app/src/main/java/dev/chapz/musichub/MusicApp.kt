@@ -7,6 +7,7 @@ import dev.chapz.musichub.repository.SongRepository
 import dev.chapz.musichub.repository.SongRepositoryImpl
 import dev.chapz.musichub.service.MediaServiceConnection
 import dev.chapz.musichub.ui.HostViewModel
+import dev.chapz.musichub.ui.albums.AlbumViewModel
 import dev.chapz.musichub.ui.songs.SongViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -28,6 +29,7 @@ class MusicApp : Application() {
     private val viewModelModule = module {
         viewModel { HostViewModel() }
         viewModel { SongViewModel(get()) }
+        viewModel { AlbumViewModel(get()) }
     }
 
     override fun onCreate() {

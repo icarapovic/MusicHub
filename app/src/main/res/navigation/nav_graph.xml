@@ -9,4 +9,9 @@
         android:name="dev.chapz.musichub.ui.songs.SongsFragment"
         android:label="Songs Fragment" />
 
+    <fragment
+        android:id="@+id/albumsFragment"
+        android:name="dev.chapz.musichub.ui.albums.AlbumsFragment"
+        android:label="AlbumsFragment" />
+
 </navigation>

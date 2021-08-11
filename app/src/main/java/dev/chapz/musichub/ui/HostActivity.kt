@@ -5,7 +5,10 @@ import android.content.pm.PackageManager.PERMISSION_DENIED
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dev.chapz.musichub.R
 import dev.chapz.musichub.databinding.ActivityHostBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -13,6 +16,7 @@ class HostActivity : AppCompatActivity() {
 
     private lateinit var ui: ActivityHostBinding
     private val hostViewModel: HostViewModel by viewModel()
+    private lateinit var navHost: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,7 +24,26 @@ class HostActivity : AppCompatActivity() {
         ui = ActivityHostBinding.inflate(layoutInflater)
         setContentView(ui.root)
 
+        ui.bottomNav.setOnItemSelectedListener { menuItem ->
+            when(menuItem.itemId) {
+                R.id.songs -> {
+                    navHost.navigate(R.id.songsFragment)
+                    true
+                }
+                R.id.albums -> {
+                    navHost.navigate(R.id.albumsFragment)
+                    true
+                }
+                else -> false
+            }
+        }
+
         checkPermissions()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        navHost = findNavController(ui.navHostFragment.id)
     }
 
     private fun checkPermissions() {

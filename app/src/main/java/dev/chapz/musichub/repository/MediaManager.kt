@@ -8,6 +8,7 @@ import org.koin.core.component.inject
 class MediaManager: KoinComponent {
 
     private val songRepository: SongRepository by inject()
+    private val albumRepository: AlbumRepository by inject()
 
     companion object {
         const val ROOT = "content://root/"
@@ -47,7 +48,7 @@ class MediaManager: KoinComponent {
     }
 
     private fun buildAlbumsRoot(): MutableList<MediaItem> {
-        return mutableListOf()
+        return albumRepository.getAllAlbums()
     }
 
     private fun buildArtistsRoot(): MutableList<MediaItem> {
