@@ -1,5 +1,6 @@
 package dev.chapz.musichub.service
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
@@ -9,11 +10,13 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import dev.chapz.musichub.repository.MediaManager
@@ -25,14 +28,19 @@ open class MediaService : MediaBrowserServiceCompat() {
 
     private lateinit var mediaSession: MediaSessionCompat
     private val mediaManager: MediaManager by inject()
+    private lateinit var notificationManager : MyNotificationManager
 
     private val audioAttrs = AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).setUsage(C.USAGE_MEDIA).build()
+    private val playerListener = PlayerListener()
     private val player: ExoPlayer by lazy {
         SimpleExoPlayer.Builder(this).build().apply {
             setAudioAttributes(audioAttrs, true)
             setHandleAudioBecomingNoisy(true)
+            addListener(playerListener)
         }
     }
+
+    private var isForegroundService = false
     private val dataSourceFactory: DefaultDataSourceFactory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "MediaService"))
     }
@@ -82,6 +90,9 @@ open class MediaService : MediaBrowserServiceCompat() {
                 player.prepare()
             }
         })
+
+        notificationManager = MyNotificationManager(this, mediaSession.sessionToken, PlayerNotificationListener())
+        notificationManager.showNotificationForPlayer(player)
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot {
@@ -106,5 +117,57 @@ open class MediaService : MediaBrowserServiceCompat() {
         super.onTaskRemoved(rootIntent)
         player.stop()
         player.clearMediaItems()
+    }
+
+    private inner class PlayerNotificationListener :
+        PlayerNotificationManager.NotificationListener {
+        override fun onNotificationPosted(
+            notificationId: Int,
+            notification: Notification,
+            ongoing: Boolean
+        ) {
+            if (ongoing && !isForegroundService) {
+                ContextCompat.startForegroundService(
+                    applicationContext,
+                    Intent(applicationContext, this@MediaService::class.java)
+                )
+
+                startForeground(notificationId, notification)
+                isForegroundService = true
+            }
+        }
+
+        override fun onNotificationCancelled(notificationId: Int, dismissedByUser: Boolean) {
+            stopForeground(true)
+            isForegroundService = false
+            stopSelf()
+        }
+    }
+
+    inner class PlayerListener: Player.Listener {
+
+        private var playWhenReady = true
+
+        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+            this.playWhenReady = playWhenReady
+        }
+
+        override fun onPlaybackStateChanged(state: Int) {
+            when (state) {
+                Player.STATE_BUFFERING,
+                Player.STATE_READY -> {
+                    notificationManager.showNotificationForPlayer(player)
+                    if (state == Player.STATE_READY) {
+                        if (!playWhenReady) {
+                            stopForeground(false)
+                            isForegroundService = false
+                        }
+                    }
+                }
+                else -> {
+                    notificationManager.hideNotification()
+                }
+            }
+        }
     }
 }
