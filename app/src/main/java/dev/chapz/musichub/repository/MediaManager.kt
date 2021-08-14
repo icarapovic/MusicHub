@@ -1,7 +1,10 @@
 package dev.chapz.musichub.repository
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+import android.support.v4.media.MediaMetadataCompat
+import dev.chapz.musichub.service.flag
+import dev.chapz.musichub.service.id
+import dev.chapz.musichub.service.title
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -19,7 +22,7 @@ class MediaManager: KoinComponent {
         const val PLAYLIST_ROOT = "content://playlists/"
     }
 
-    fun getChildrenForRoot(root: String): MutableList<MediaItem> {
+    fun getChildrenForRoot(root: String): MutableList<MediaMetadataCompat> {
         return when(root) {
             ROOT -> buildMainRoot()
             SONG_ROOT -> buildSongsRoot()
@@ -32,38 +35,58 @@ class MediaManager: KoinComponent {
 
     }
 
-    private fun buildMainRoot(): MutableList<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-        val songs = MediaItem(builder.setTitle("Songs").setMediaId(SONG_ROOT).build(), MediaItem.FLAG_BROWSABLE)
-        val albums = MediaItem(builder.setTitle("Albums").setMediaId(ALBUM_ROOT).build(), MediaItem.FLAG_BROWSABLE)
-        val artists = MediaItem(builder.setTitle("Artists").setMediaId(ARTIST_ROOT).build(), MediaItem.FLAG_BROWSABLE)
-        val genres = MediaItem(builder.setTitle("Genres").setMediaId(GENRE_ROOT).build(), MediaItem.FLAG_BROWSABLE)
-        val playlists = MediaItem(builder.setTitle("Playlists").setMediaId(PLAYLIST_ROOT).build(), MediaItem.FLAG_BROWSABLE)
+    private fun buildMainRoot(): MutableList<MediaMetadataCompat> {
+        val builder = MediaMetadataCompat.Builder()
+        val songs = builder.apply {
+            title = "Songs"
+            id = SONG_ROOT
+            flag = FLAG_BROWSABLE
+        }.build()
+        val albums = builder.apply {
+            title = "Albums"
+            id = ALBUM_ROOT
+            flag = FLAG_BROWSABLE
+        }.build()
+        val artists = builder.apply {
+            title = "Artists"
+            id = ARTIST_ROOT
+            flag = FLAG_BROWSABLE
+        }.build()
+        val genres = builder.apply {
+            title = "Genres"
+            id = GENRE_ROOT
+            flag = FLAG_BROWSABLE
+        }.build()
+        val playlists = builder.apply {
+            title = "Playlists"
+            id = PLAYLIST_ROOT
+            flag = FLAG_BROWSABLE
+        }.build()
 
         return mutableListOf(songs, albums, artists, genres, playlists)
     }
 
-    private fun buildSongsRoot(): MutableList<MediaItem> {
-        return songRepository.getAllSongs()
+    private fun buildSongsRoot(): MutableList<MediaMetadataCompat> {
+        return songRepository.getAllSongMetadata()
     }
 
-    private fun buildAlbumsRoot(): MutableList<MediaItem> {
-        return albumRepository.getAllAlbums()
+    private fun buildAlbumsRoot(): MutableList<MediaMetadataCompat> {
+        return albumRepository.getAllAlbumsMetadata()
     }
 
-    private fun buildArtistsRoot(): MutableList<MediaItem> {
+    private fun buildArtistsRoot(): MutableList<MediaMetadataCompat> {
         return mutableListOf()
     }
 
-    private fun buildGenresRoot(): MutableList<MediaItem> {
+    private fun buildGenresRoot(): MutableList<MediaMetadataCompat> {
         return mutableListOf()
     }
 
-    private fun buildPlaylistRoot(): MutableList<MediaItem> {
+    private fun buildPlaylistRoot(): MutableList<MediaMetadataCompat> {
         return mutableListOf()
     }
 
-    private fun parseAndBuildRoot() : MutableList<MediaItem> {
+    private fun parseAndBuildRoot() : MutableList<MediaMetadataCompat> {
         return mutableListOf()
     }
 

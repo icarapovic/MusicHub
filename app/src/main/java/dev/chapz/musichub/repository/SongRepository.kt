@@ -1,7 +1,7 @@
 package dev.chapz.musichub.repository
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v4.media.MediaMetadataCompat
 
 interface SongRepository {
-    fun getAllSongs(): MutableList<MediaItem>
+    fun getAllSongMetadata(): MutableList<MediaMetadataCompat>
 }

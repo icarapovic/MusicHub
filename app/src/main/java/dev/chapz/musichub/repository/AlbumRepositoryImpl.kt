@@ -6,7 +6,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.Albums
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
 import android.support.v4.media.MediaMetadataCompat
 import dev.chapz.musichub.service.*
@@ -22,7 +21,7 @@ class AlbumRepositoryImpl(private val mediaStore: ContentResolver) : AlbumReposi
 
     private val albumArtworkUri = Uri.parse("content://media/external/audio/albumart")
 
-    override fun getAllAlbums(): MutableList<MediaItem> {
+    override fun getAllAlbumsMetadata(): MutableList<MediaMetadataCompat> {
         val cursor = queryMediaStoreAlbums()
         return extractAlbumsFromCursor(cursor)
     }
@@ -37,8 +36,8 @@ class AlbumRepositoryImpl(private val mediaStore: ContentResolver) : AlbumReposi
         )
     }
 
-    private fun extractAlbumsFromCursor(cursor: Cursor?): MutableList<MediaItem> {
-        val albums = arrayListOf<MediaItem>()
+    private fun extractAlbumsFromCursor(cursor: Cursor?): MutableList<MediaMetadataCompat> {
+        val albums = arrayListOf<MediaMetadataCompat>()
 
         // if the cursor is not null
         cursor?.let { c ->
@@ -54,7 +53,7 @@ class AlbumRepositoryImpl(private val mediaStore: ContentResolver) : AlbumReposi
         return albums
     }
 
-    private fun getMediaItemFromCursor(cursor: Cursor): MediaItem {
+    private fun getMediaItemFromCursor(cursor: Cursor): MediaMetadataCompat {
         val id = cursor.getString(Albums._ID)
         val title = cursor.getString(Albums.ALBUM)
         val trackCount = cursor.getLong(Albums.NUMBER_OF_SONGS)
@@ -71,6 +70,6 @@ class AlbumRepositoryImpl(private val mediaStore: ContentResolver) : AlbumReposi
         metadataBuilder.mediaUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toLong()).toString()
         metadataBuilder.flag = FLAG_BROWSABLE
 
-        return MediaItem(metadataBuilder.build().description, FLAG_BROWSABLE)
+        return metadataBuilder.build()
     }
 }

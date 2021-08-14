@@ -5,7 +5,6 @@ import android.content.ContentUris
 import android.database.Cursor
 import android.provider.BaseColumns
 import android.provider.MediaStore
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
 import android.support.v4.media.MediaMetadataCompat
 import dev.chapz.musichub.service.*
@@ -28,7 +27,7 @@ class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongReposito
 
     private val songIdSelection = MediaStore.Audio.AudioColumns._ID + " = ?"
 
-    override fun getAllSongs(): MutableList<MediaItem> {
+    override fun getAllSongMetadata(): MutableList<MediaMetadataCompat> {
         val cursor = queryMediaStoreSongs()
         return extractSongsFromCursor(cursor)
     }
@@ -43,8 +42,8 @@ class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongReposito
         )
     }
 
-    private fun extractSongsFromCursor(cursor: Cursor?): MutableList<MediaItem> {
-        val songs = arrayListOf<MediaItem>()
+    private fun extractSongsFromCursor(cursor: Cursor?): MutableList<MediaMetadataCompat> {
+        val songs = arrayListOf<MediaMetadataCompat>()
 
         // if the cursor is not null
         cursor?.let { c ->
@@ -60,7 +59,7 @@ class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongReposito
         return songs
     }
 
-    private fun getSongFromCursor(cursor: Cursor): MediaItem {
+    private fun getSongFromCursor(cursor: Cursor): MediaMetadataCompat {
         val id = cursor.getString(MediaStore.Audio.AudioColumns._ID)
         val title = cursor.getString(MediaStore.Audio.AudioColumns.TITLE)
         val trackNumber = cursor.getLong(MediaStore.Audio.AudioColumns.TRACK)
@@ -84,6 +83,6 @@ class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongReposito
         metadataBuilder.mediaUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toLong()).toString()
         metadataBuilder.flag = FLAG_PLAYABLE
 
-        return MediaItem(metadataBuilder.build().description, FLAG_PLAYABLE)
+        return metadataBuilder.build()
     }
 }
