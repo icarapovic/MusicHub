@@ -49,7 +49,7 @@ class MediaServiceConnection(private val context: Context) {
         override fun onConnectionFailed() = isConnected.postValue(false)
     }
 
-    private inner class MediaControllerCallback(): MediaControllerCompat.Callback() {
+    private inner class MediaControllerCallback: MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) = playbackState.postValue(state ?: EMPTY_PLAYBACK_STATE)
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) = nowPlaying.postValue(if(metadata?.id == null) NOTHING_PLAYING else metadata)
         override fun onSessionDestroyed() = mediaBrowserConnectionCallback.onConnectionSuspended()

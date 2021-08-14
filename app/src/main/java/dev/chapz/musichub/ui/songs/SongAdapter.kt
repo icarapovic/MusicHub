@@ -10,11 +10,16 @@ import dev.chapz.musichub.databinding.ItemSongBinding
 class SongAdapter : RecyclerView.Adapter<SongAdapter.ViewHolder>() {
 
     private var songs: List<MediaItem> = emptyList()
+    private var listener: (mediaItem: MediaItem) -> Unit = {  }
 
     @SuppressLint("NotifyDataSetChanged")
-    public fun setData(songList: List<MediaItem>) {
+    fun setData(songList: List<MediaItem>) {
         songs = songList
         notifyDataSetChanged()
+    }
+
+    fun onMediaItemClicked(listener: (mediaItem: MediaItem) -> Unit) {
+        this.listener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,6 +30,7 @@ class SongAdapter : RecyclerView.Adapter<SongAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.songTitle.text = songs[position].description.title
+        holder.binding.root.setOnClickListener { listener.invoke(songs[position]) }
     }
 
     override fun getItemId(position: Int) = position.toLong()

@@ -25,7 +25,7 @@ class MusicApp : Application() {
     }
 
     private val viewModelModule = module {
-        viewModel { HostViewModel() }
+        viewModel { HostViewModel(get()) }
         viewModel { SongViewModel(get()) }
         viewModel { AlbumViewModel(get()) }
     }

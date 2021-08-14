@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.chapz.musichub.databinding.FragmentSongsBinding
+import dev.chapz.musichub.ui.HostViewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SongsFragment : Fragment() {
@@ -15,6 +17,7 @@ class SongsFragment : Fragment() {
     private lateinit var songAdapter: SongAdapter
 
     private val viewModel: SongViewModel by viewModel()
+    private val hostViewModel: HostViewModel by sharedViewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         ui = FragmentSongsBinding.inflate(inflater)
@@ -24,6 +27,9 @@ class SongsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         songAdapter = SongAdapter()
         songAdapter.setHasStableIds(true)
+        songAdapter.onMediaItemClicked { mediaItem ->
+            hostViewModel.playMediaItem(mediaItem)
+        }
 
         ui.songRecycler.apply {
             layoutManager = LinearLayoutManager(context)
