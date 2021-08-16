@@ -15,7 +15,6 @@ import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
@@ -83,11 +82,12 @@ open class MediaService : MediaBrowserServiceCompat() {
                 player.stop()
                 player.clearMediaItems()
 
-                val mediaMetadata = mediaManager.getChildrenForRoot(SONG_ROOT).find { it.id == mediaId }!!
-                val mediaItem = com.google.android.exoplayer2.MediaItem.fromUri(mediaMetadata.mediaUri)
-                val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
+                val mediaMetadata = mediaManager.getChildrenForRoot(SONG_ROOT)
+                val index = mediaMetadata.indexOfFirst { it.id == mediaId }
+                val mediaSource = mediaMetadata.toMediaSource(dataSourceFactory)
                 player.setMediaSource(mediaSource)
                 player.prepare()
+                player.seekTo(index, 0)
             }
         })
 
