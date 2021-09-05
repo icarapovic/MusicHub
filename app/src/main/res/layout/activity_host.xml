@@ -21,4 +21,43 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/menu_bottom_nav" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/playbackControls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/previous"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:contentDescription="Previous"
+            android:src="@drawable/ic_previous"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageButton
+            android:id="@+id/playPause"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:contentDescription="Play Pause"
+            android:src="@drawable/ic_play"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/previous" />
+
+        <ImageButton
+            android:id="@+id/next"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_next"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/playPause" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

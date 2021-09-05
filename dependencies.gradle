@@ -3,9 +3,9 @@ ext.versions = [
         kotlin: "1.5.21",
         navigation: "2.3.5",
         koin: "3.1.2",
-        exoPlayer: "2.14.2",
+        exoPlayer: "2.15.0",
         coroutine: "1.1.0",
-        glide: "4.11.0",
+        glide: "4.12.0",
 
         // App
         compileSdk: 30,

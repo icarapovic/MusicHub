@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
@@ -15,6 +16,7 @@ import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
+import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
@@ -90,6 +92,8 @@ open class MediaService : MediaBrowserServiceCompat() {
                 player.seekTo(index, 0)
             }
         })
+        mediaSessionConnector.setQueueNavigator(QueueNavigator(mediaSession))
+        mediaSessionConnector.setPlayer(player)
 
         notificationManager = MyNotificationManager(this, mediaSession.sessionToken, PlayerNotificationListener())
         notificationManager.showNotificationForPlayer(player)
@@ -168,6 +172,13 @@ open class MediaService : MediaBrowserServiceCompat() {
                     notificationManager.hideNotification()
                 }
             }
+        }
+    }
+
+    inner class QueueNavigator(mediaSession: MediaSessionCompat): TimelineQueueNavigator(mediaSession) {
+        private val mediaMetadata = mediaManager.getChildrenForRoot(SONG_ROOT)
+        override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
+            return mediaMetadata.first().description
         }
     }
 }
