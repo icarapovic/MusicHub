@@ -24,38 +24,55 @@ import dev.chapz.musichub.repository.MediaManager
 import dev.chapz.musichub.repository.MediaManager.Companion.ROOT
 import dev.chapz.musichub.repository.MediaManager.Companion.SONG_ROOT
 import org.koin.android.ext.android.inject
+import dev.chapz.musichub.R.string as Strings
 
-open class MediaService : MediaBrowserServiceCompat() {
+open class MediaService : MediaBrowserServiceCompat(),
+    Player.Listener,
+    PlayerNotificationManager.NotificationListener,
+    MediaSessionConnector.PlaybackPreparer
+{
+
+    companion object {
+        const val TAG = "::MediaService"
+        const val HANDLE_NOISY = true
+        const val HANDLE_AUDIO_FOCUS = true
+        const val REQ_CODE = 1337
+    }
+
+    /** Properties */
+
+    private var playWhenReady = true
+    private var isForegroundService = false
 
     private lateinit var mediaSession: MediaSessionCompat
-    private val mediaManager: MediaManager by inject()
-    private lateinit var notificationManager : MyNotificationManager
+    private lateinit var notificationManager : MediaNotificationManager
 
+    private val mediaManager: MediaManager by inject()
     private val audioAttrs = AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).setUsage(C.USAGE_MEDIA).build()
-    private val playerListener = PlayerListener()
+
     private val player: ExoPlayer by lazy {
-        SimpleExoPlayer.Builder(this).build().apply {
-            setAudioAttributes(audioAttrs, true)
-            setHandleAudioBecomingNoisy(true)
-            addListener(playerListener)
+        SimpleExoPlayer.Builder(applicationContext).build().apply {
+            setAudioAttributes(audioAttrs, HANDLE_AUDIO_FOCUS)
+            setHandleAudioBecomingNoisy(HANDLE_NOISY)
+            addListener(this@MediaService)
         }
     }
-
-    private var isForegroundService = false
     private val dataSourceFactory: DefaultDataSourceFactory by lazy {
-        DefaultDataSourceFactory(this, Util.getUserAgent(this, "MediaService"))
+        DefaultDataSourceFactory(applicationContext, Util.getUserAgent(applicationContext, getString(Strings.app_name)))
     }
     private lateinit var mediaSessionConnector: MediaSessionConnector
+
+    /** Service lifecycle methods */
 
     override fun onCreate() {
         super.onCreate()
 
         // Intent to launch the main activity of this app
-        val launchIntent = packageManager.getLaunchIntentForPackage(packageName).let {
-            PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName).let { intent ->
+            PendingIntent.getActivity(applicationContext, REQ_CODE, intent, PendingIntent.FLAG_IMMUTABLE)
         }
 
-        mediaSession = MediaSessionCompat(this, "MediaService").apply {
+        mediaSession = MediaSessionCompat(applicationContext, TAG).apply {
             setSessionActivity(launchIntent)
             isActive = true
         }
@@ -63,49 +80,12 @@ open class MediaService : MediaBrowserServiceCompat() {
         sessionToken = mediaSession.sessionToken
 
         mediaSessionConnector = MediaSessionConnector(mediaSession)
-        mediaSessionConnector.setPlaybackPreparer(object : MediaSessionConnector.PlaybackPreparer {
-            override fun onCommand(player: Player, controlDispatcher: ControlDispatcher, command: String, extras: Bundle?, cb: ResultReceiver?) = false
-            override fun onPrepareFromSearch(query: String, playWhenReady: Boolean, extras: Bundle?) = Unit
-            override fun onPrepareFromUri(uri: Uri, playWhenReady: Boolean, extras: Bundle?) = Unit
-
-            override fun getSupportedPrepareActions(): Long =
-                PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
-                        PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
-                        PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH or
-                        PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
-
-            override fun onPrepare(playWhenReady: Boolean) {
-                Log.d("---", "onPrepare: playWhenReady: $playWhenReady")
-            }
-
-            override fun onPrepareFromMediaId(mediaId: String, playWhenReady: Boolean, extras: Bundle?) {
-                Log.d("---", "onPrepareFromMediaId")
-                player.playWhenReady = playWhenReady
-                player.stop()
-                player.clearMediaItems()
-
-                val mediaMetadata = mediaManager.getChildrenForRoot(SONG_ROOT)
-                val index = mediaMetadata.indexOfFirst { it.id == mediaId }
-                val mediaSource = mediaMetadata.toMediaSource(dataSourceFactory)
-                player.setMediaSource(mediaSource)
-                player.prepare()
-                player.seekTo(index, 0)
-            }
-        })
+        mediaSessionConnector.setPlaybackPreparer(this)
         mediaSessionConnector.setQueueNavigator(QueueNavigator(mediaSession))
         mediaSessionConnector.setPlayer(player)
 
-        notificationManager = MyNotificationManager(this, mediaSession.sessionToken, PlayerNotificationListener())
+        notificationManager = MediaNotificationManager(applicationContext, mediaSession.sessionToken, this)
         notificationManager.showNotificationForPlayer(player)
-    }
-
-    override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot {
-        return BrowserRoot(ROOT, rootHints)
-    }
-
-    override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaItem>>) {
-        val mediaItems = mediaManager.getChildrenForRoot(parentId).map { MediaItem(it.description, it.flag) }.toMutableList()
-        result.sendResult(mediaItems)
     }
 
     override fun onDestroy() {
@@ -118,67 +98,106 @@ open class MediaService : MediaBrowserServiceCompat() {
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
-        super.onTaskRemoved(rootIntent)
         player.stop()
         player.clearMediaItems()
     }
 
-    private inner class PlayerNotificationListener :
-        PlayerNotificationManager.NotificationListener {
-        override fun onNotificationPosted(
-            notificationId: Int,
-            notification: Notification,
-            ongoing: Boolean
-        ) {
-            if (ongoing && !isForegroundService) {
-                ContextCompat.startForegroundService(
-                    applicationContext,
-                    Intent(applicationContext, this@MediaService::class.java)
-                )
+    /** Browser service callbacks */
 
-                startForeground(notificationId, notification)
-                isForegroundService = true
-            }
-        }
+    override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?) = BrowserRoot(ROOT, rootHints)
 
-        override fun onNotificationCancelled(notificationId: Int, dismissedByUser: Boolean) {
-            stopForeground(true)
-            isForegroundService = false
-            stopSelf()
-        }
+    override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaItem>>) {
+        val mediaItems = mediaManager.getChildrenForRoot(parentId).map { MediaItem(it.description, it.flag) }.toMutableList()
+        result.sendResult(mediaItems)
     }
 
-    inner class PlayerListener: Player.Listener {
+    /** Player.Listener methods */
 
-        private var playWhenReady = true
+    override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+        Log.d(TAG, "Set playWhenReady = $playWhenReady")
+        this.playWhenReady = playWhenReady
+    }
 
-        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-            this.playWhenReady = playWhenReady
-        }
-
-        override fun onPlaybackStateChanged(state: Int) {
-            when (state) {
-                Player.STATE_BUFFERING,
-                Player.STATE_READY -> {
-                    notificationManager.showNotificationForPlayer(player)
-                    if (state == Player.STATE_READY) {
-                        if (!playWhenReady) {
-                            stopForeground(false)
-                            isForegroundService = false
-                        }
+    override fun onPlaybackStateChanged(state: Int) {
+        Log.d(TAG, "Playback state: $state")
+        when (state) {
+            Player.STATE_BUFFERING,
+            Player.STATE_READY -> {
+                notificationManager.showNotificationForPlayer(player)
+                if (state == Player.STATE_READY) {
+                    if (!playWhenReady) {
+                        stopForeground(false)
+                        isForegroundService = false
                     }
                 }
-                else -> {
-                    notificationManager.hideNotification()
-                }
+            }
+            else -> {
+                notificationManager.hideNotification()
             }
         }
     }
+
+    /** PlayerNotificationManager.NotificationListener methods */
+
+    override fun onNotificationPosted(notificationId: Int, notification: Notification, ongoing: Boolean) {
+        if (ongoing && !isForegroundService) {
+            ContextCompat.startForegroundService(
+                applicationContext,
+                Intent(applicationContext, MediaService::class.java)
+            )
+
+            startForeground(notificationId, notification)
+            isForegroundService = true
+        }
+    }
+
+    override fun onNotificationCancelled(notificationId: Int, dismissedByUser: Boolean) {
+        stopForeground(true)
+        isForegroundService = false
+        stopSelf()
+    }
+
+    /** MediaSessionConnector.PlaybackPreparer methods */
+
+    override fun onCommand(player: Player, controlDispatcher: ControlDispatcher, command: String, extras: Bundle?, cb: ResultReceiver?) = false
+
+    override fun onPrepareFromSearch(query: String, playWhenReady: Boolean, extras: Bundle?) = Unit
+
+    override fun onPrepareFromUri(uri: Uri, playWhenReady: Boolean, extras: Bundle?) = Unit
+
+    override fun getSupportedPrepareActions(): Long {
+        return PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
+                PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH or
+                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+    }
+
+    override fun onPrepare(playWhenReady: Boolean) {
+        Log.d(TAG, "onPrepare: playWhenReady: $playWhenReady")
+    }
+
+    override fun onPrepareFromMediaId(mediaId: String, playWhenReady: Boolean, extras: Bundle?) {
+        Log.d(TAG, "onPrepareFromMediaId")
+        player.playWhenReady = playWhenReady
+        player.stop()
+        player.clearMediaItems()
+
+        val mediaMetadata = mediaManager.getChildrenForRoot(SONG_ROOT)
+        val index = mediaMetadata.indexOfFirst { it.id == mediaId }
+        val mediaSource = mediaMetadata.toMediaSource(dataSourceFactory)
+        player.setMediaSource(mediaSource)
+        player.prepare()
+        player.seekTo(index, 0)
+    }
+
+    /** Queue Navigator implementation */
 
     inner class QueueNavigator(mediaSession: MediaSessionCompat): TimelineQueueNavigator(mediaSession) {
         private val mediaMetadata = mediaManager.getChildrenForRoot(SONG_ROOT)
         override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
-            return mediaMetadata.first().description
+            return mediaMetadata.find {
+                it.mediaUri == player.getMediaItemAt(windowIndex).playbackProperties?.uri
+            }?.description!!
         }
     }
 }

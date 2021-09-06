@@ -13,7 +13,7 @@ import dev.chapz.musichub.R
 const val NOW_PLAYING_CHANNEL_ID = "com.example.android.uamp.media.NOW_PLAYING"
 const val NOW_PLAYING_NOTIFICATION_ID = 0xb339
 
-class MyNotificationManager(
+class MediaNotificationManager(
     context: Context,
     sessionToken: MediaSessionCompat.Token,
     notificationListener: PlayerNotificationManager.NotificationListener
