@@ -12,5 +12,6 @@
     <string name="menu_item_genre">Genres</string>
     <string name="menu_item_playlists">Playlists</string>
     <string name="channel_desc">Now Playing</string>
+    <string name="unknown_title">Unknown title</string>
 
 </resources>
