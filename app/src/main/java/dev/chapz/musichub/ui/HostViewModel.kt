@@ -1,6 +1,7 @@
 package dev.chapz.musichub.ui
 
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
@@ -14,6 +15,8 @@ class HostViewModel(private val mediaServiceConnection: MediaServiceConnection) 
         get() = mediaServiceConnection.transportControls
     val playbackState: MutableLiveData<PlaybackStateCompat>
         get() = mediaServiceConnection.playbackState
+    val nowPlaying: MutableLiveData<MediaMetadataCompat>
+        get() = mediaServiceConnection.nowPlaying
 
     fun playMediaItem(mediaItem: MediaBrowserCompat.MediaItem) {
         Log.d("---", "Clicked on: ${mediaItem.description.title}")

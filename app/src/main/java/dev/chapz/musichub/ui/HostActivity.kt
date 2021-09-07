@@ -11,8 +11,7 @@ import androidx.navigation.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.chapz.musichub.R
 import dev.chapz.musichub.databinding.ActivityHostBinding
-import dev.chapz.musichub.service.isPlaying
-import dev.chapz.musichub.service.stateName
+import dev.chapz.musichub.service.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HostActivity : AppCompatActivity() {
@@ -27,34 +26,12 @@ class HostActivity : AppCompatActivity() {
         ui = ActivityHostBinding.inflate(layoutInflater)
         setContentView(ui.root)
 
-        ui.bottomNav.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.songs -> {
-                    navHost.navigate(R.id.songsFragment)
-                    true
-                }
-                R.id.albums -> {
-                    navHost.navigate(R.id.albumsFragment)
-                    true
-                }
-                else -> false
-            }
-        }
-
         checkPermissions()
     }
 
     override fun onStart() {
         super.onStart()
         navHost = findNavController(ui.navHostFragment.id)
-
-        ui.next.setOnClickListener {
-            viewModel.transportControls.skipToNext()
-        }
-
-        ui.previous.setOnClickListener {
-            viewModel.transportControls.skipToPrevious()
-        }
 
         ui.playPause.setOnClickListener {
             viewModel.playbackState.value?.let {
@@ -73,6 +50,12 @@ class HostActivity : AppCompatActivity() {
             } else {
                 ui.playPause.setImageResource(R.drawable.ic_play)
             }
+        }
+
+        viewModel.nowPlaying.observe(this) {
+            ui.albumArt.setImageBitmap(it.albumArt)
+            ui.title.text = it.title
+            ui.artist.text = it.artist
         }
     }
 
