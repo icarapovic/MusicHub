@@ -6,6 +6,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -13,6 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.chapz.musichub.R
 import dev.chapz.musichub.databinding.ActivityHostBinding
 import dev.chapz.musichub.service.*
+import dev.chapz.musichub.service.MediaServiceConnection.Companion.NOTHING_PLAYING
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HostActivity : AppCompatActivity() {
@@ -54,12 +56,16 @@ class HostActivity : AppCompatActivity() {
         }
 
         viewModel.nowPlaying.observe(this) { metadata ->
-            if(metadata.displayIconUri != Uri.EMPTY) {
-                ui.albumArt.setImageURI(metadata.displayIconUri)
-            }
+            if(metadata != NOTHING_PLAYING) {
+                ui.playbackControls.visibility = View.VISIBLE
 
-            ui.title.text = metadata.displayTitle
-            ui.artist.text = metadata.displaySubtitle
+                if(metadata.displayIconUri != Uri.EMPTY) {
+                    ui.albumArt.setImageURI(metadata.displayIconUri)
+                }
+
+                ui.title.text = metadata.displayTitle
+                ui.artist.text = metadata.displaySubtitle
+            }
         }
     }
 
