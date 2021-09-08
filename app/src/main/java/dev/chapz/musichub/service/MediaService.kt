@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
@@ -46,8 +47,10 @@ open class MediaService : MediaBrowserServiceCompat(),
 
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var notificationManager : MediaNotificationManager
-
+    private lateinit var mediaSessionConnector: MediaSessionConnector
     private val mediaManager: MediaManager by inject()
+    private var currentPlaylist: List<MediaMetadataCompat> = emptyList()
+
     private val audioAttrs = AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).setUsage(C.USAGE_MEDIA).build()
 
     private val player: ExoPlayer by lazy {
@@ -60,7 +63,6 @@ open class MediaService : MediaBrowserServiceCompat(),
     private val dataSourceFactory: DefaultDataSourceFactory by lazy {
         DefaultDataSourceFactory(applicationContext, Util.getUserAgent(applicationContext, getString(Strings.app_name)))
     }
-    private lateinit var mediaSessionConnector: MediaSessionConnector
 
     /** Service lifecycle methods */
 
@@ -184,20 +186,28 @@ open class MediaService : MediaBrowserServiceCompat(),
 
         val mediaMetadata = mediaManager.getChildrenForRoot(SONG_ROOT)
         val index = mediaMetadata.indexOfFirst { it.id == mediaId }
-        val mediaSource = mediaMetadata.toMediaSource(dataSourceFactory)
-        player.setMediaSource(mediaSource)
-        player.prepare()
-        player.seekTo(index, 0)
+        preparePlaylist(mediaMetadata, mediaMetadata[index])
     }
 
     /** Queue Navigator implementation */
 
     inner class QueueNavigator(mediaSession: MediaSessionCompat): TimelineQueueNavigator(mediaSession) {
-        private val mediaMetadata = mediaManager.getChildrenForRoot(SONG_ROOT)
         override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
-            return mediaMetadata.find {
-                it.mediaUri == player.getMediaItemAt(windowIndex).playbackProperties?.uri
-            }?.description!!
+            return currentPlaylist[windowIndex].description
         }
+    }
+
+    /**  Private methods */
+
+    private fun preparePlaylist(
+        metadataList: List<MediaMetadataCompat>,
+        itemToPlay: MediaMetadataCompat?,
+    ) {
+        val initialIndex = if(itemToPlay == null) 0 else metadataList.indexOf(itemToPlay)
+        currentPlaylist = metadataList
+        val mediaSource = metadataList.toMediaSource(dataSourceFactory)
+        player.setMediaSource(mediaSource)
+        player.prepare()
+        player.seekTo(initialIndex, 0)
     }
 }

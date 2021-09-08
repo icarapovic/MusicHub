@@ -3,6 +3,7 @@ package dev.chapz.musichub.ui
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.pm.PackageManager.PERMISSION_DENIED
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -52,10 +53,13 @@ class HostActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.nowPlaying.observe(this) {
-            ui.albumArt.setImageBitmap(it.albumArt)
-            ui.title.text = it.title
-            ui.artist.text = it.artist
+        viewModel.nowPlaying.observe(this) { metadata ->
+            if(metadata.displayIconUri != Uri.EMPTY) {
+                ui.albumArt.setImageURI(metadata.displayIconUri)
+            }
+
+            ui.title.text = metadata.displayTitle
+            ui.artist.text = metadata.displaySubtitle
         }
     }
 

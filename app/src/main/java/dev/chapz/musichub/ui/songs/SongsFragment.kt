@@ -31,7 +31,7 @@ class SongsFragment : Fragment() {
             hostViewModel.playMediaItem(mediaItem)
         }
 
-        ui.songRecycler.apply {
+        ui.root.apply {
             layoutManager = LinearLayoutManager(context)
             setHasFixedSize(true)
             adapter = songAdapter

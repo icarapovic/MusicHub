@@ -59,5 +59,6 @@ dependencies {
     implementation deps.navigationFragment
     implementation deps.koin
     implementation deps.glide
+    implementation deps.glideRecycler
     kapt deps.glideKapt
 }

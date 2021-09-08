@@ -3,6 +3,7 @@ package dev.chapz.musichub.repository
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.database.Cursor
+import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
@@ -76,11 +77,14 @@ class SongRepositoryImpl(private val mediaStore: ContentResolver) : SongReposito
         metadataBuilder.id = id
         metadataBuilder.title = title
         metadataBuilder.displayTitle = title
+        metadataBuilder.displaySubtitle = artistName
         metadataBuilder.trackNumber = trackNumber
         metadataBuilder.duration = duration
         metadataBuilder.album = albumName
         metadataBuilder.artist = artistName
+        metadataBuilder.displayIconUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId).toString()
         metadataBuilder.mediaUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toLong()).toString()
+        metadataBuilder.albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId).toString()
         metadataBuilder.flag = FLAG_PLAYABLE
 
         return metadataBuilder.build()

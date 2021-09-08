@@ -15,23 +15,36 @@
         app:navGraph="@navigation/nav_graph" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/playbackControls"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:layout_margin="8dp"
-        app:cardBackgroundColor="#212121"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:cardBackgroundColor="#424242"
         app:cardCornerRadius="8dp"
         app:layout_constraintBottom_toTopOf="@id/bottomNav">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/playbackControls"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/albumArt"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/albumArtWrapper"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:cardBackgroundColor="#424242"
+                app:cardCornerRadius="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/albumArt"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp" />
+            </androidx.cardview.widget.CardView>
+
 
             <TextView
                 android:id="@+id/title"
@@ -45,7 +58,7 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@id/artist"
                 app:layout_constraintEnd_toStartOf="@id/playPause"
-                app:layout_constraintStart_toEndOf="@id/albumArt"
+                app:layout_constraintStart_toEndOf="@id/albumArtWrapper"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Without Me" />
 
@@ -61,7 +74,7 @@
                 android:textColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/playPause"
-                app:layout_constraintStart_toEndOf="@id/albumArt"
+                app:layout_constraintStart_toEndOf="@id/albumArtWrapper"
                 app:layout_constraintTop_toBottomOf="@id/title"
                 tools:text="Eminem" />
 

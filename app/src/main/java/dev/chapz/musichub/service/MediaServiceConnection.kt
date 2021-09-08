@@ -2,6 +2,7 @@ package dev.chapz.musichub.service
 
 import android.content.ComponentName
 import android.content.Context
+import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -17,6 +18,8 @@ class MediaServiceConnection(private val context: Context) {
         val NOTHING_PLAYING: MediaMetadataCompat = MediaMetadataCompat.Builder()
             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "")
             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
+            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, Uri.EMPTY.toString())
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, Uri.EMPTY.toString())
             .build()
     }
 
