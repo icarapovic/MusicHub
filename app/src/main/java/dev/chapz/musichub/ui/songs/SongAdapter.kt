@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import dev.chapz.musichub.R
 import dev.chapz.musichub.databinding.ItemSongBinding
 
 class SongAdapter : RecyclerView.Adapter<SongAdapter.ViewHolder>() {
@@ -36,6 +37,7 @@ class SongAdapter : RecyclerView.Adapter<SongAdapter.ViewHolder>() {
             Glide.with(albumArt)
                 .load(songs[position].description.iconUri)
                 .override(128, 128)
+                .placeholder(R.drawable.ic_album)
                 .into(albumArt)
             root.setOnClickListener { listener.invoke(songs[position]) }
         }
