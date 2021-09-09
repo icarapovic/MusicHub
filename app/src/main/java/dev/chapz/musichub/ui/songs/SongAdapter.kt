@@ -35,9 +35,8 @@ class SongAdapter : RecyclerView.Adapter<SongAdapter.ViewHolder>() {
             subtitle.text = songs[position].description.subtitle
             Glide.with(albumArt)
                 .load(songs[position].description.iconUri)
-                .override(64, 64) // TODO optimize with preloader
+                .override(128, 128)
                 .into(albumArt)
-            albumArt.setImageURI(songs[position].description.iconUri)
             root.setOnClickListener { listener.invoke(songs[position]) }
         }
     }
