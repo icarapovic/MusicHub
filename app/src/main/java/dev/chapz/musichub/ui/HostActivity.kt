@@ -7,7 +7,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.marginBottom
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -28,6 +30,13 @@ class HostActivity : AppCompatActivity() {
 
         ui = ActivityHostBinding.inflate(layoutInflater)
         setContentView(ui.root)
+
+        ui.bottomNav.setOnApplyWindowInsetsListener { bottomBar, insets ->
+            val layoutParams = bottomBar.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.bottomMargin = bottomBar.marginBottom + insets.stableInsetBottom
+            bottomBar.layoutParams = layoutParams
+            insets
+        }
 
         checkPermissions()
     }
