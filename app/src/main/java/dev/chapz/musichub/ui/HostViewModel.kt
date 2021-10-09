@@ -18,6 +18,10 @@ class HostViewModel(private val mediaServiceConnection: MediaServiceConnection) 
     val nowPlaying: MutableLiveData<MediaMetadataCompat>
         get() = mediaServiceConnection.nowPlaying
 
+    fun connectMediaService() {
+        mediaServiceConnection.connect()
+    }
+
     fun playMediaItem(mediaItem: MediaBrowserCompat.MediaItem) {
         Log.d("---", "Clicked on: ${mediaItem.description.title}")
 

@@ -32,8 +32,16 @@ class MediaServiceConnection(private val context: Context) {
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback()
     private val serviceComponent = ComponentName(context, MediaService::class.java)
-    private var mediaBrowser = MediaBrowserCompat(context, serviceComponent, mediaBrowserConnectionCallback, null).apply { connect() }
+    private var mediaBrowser = MediaBrowserCompat(context, serviceComponent, mediaBrowserConnectionCallback, null)
     private lateinit var mediaController: MediaControllerCompat
+
+    fun connect() {
+        if(!mediaBrowser.isConnected) mediaBrowser.connect()
+    }
+
+    fun disconnect() {
+        if(mediaBrowser.isConnected) mediaBrowser.disconnect()
+    }
 
     fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
         mediaBrowser.subscribe(parentId, callback)

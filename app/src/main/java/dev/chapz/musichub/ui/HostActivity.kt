@@ -80,6 +80,7 @@ class HostActivity : AppCompatActivity() {
 
     private fun checkPermissions() {
         if (checkSelfPermission(READ_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
+            viewModel.connectMediaService()
             return
         }
 
@@ -103,6 +104,8 @@ class HostActivity : AppCompatActivity() {
             checkPermissions()
         } else if (requestCode == 101 && grantResults.first() == PERMISSION_DENIED) {
             // display info + button in UI
+        } else if(grantResults.first() == PERMISSION_GRANTED) {
+            viewModel.connectMediaService()
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
