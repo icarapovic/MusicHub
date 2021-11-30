@@ -19,6 +19,8 @@ import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import dev.chapz.musichub.repository.MediaManager
@@ -54,14 +56,15 @@ open class MediaService : MediaBrowserServiceCompat(),
     private val audioAttrs = AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).setUsage(C.USAGE_MEDIA).build()
 
     private val player: ExoPlayer by lazy {
-        SimpleExoPlayer.Builder(applicationContext).build().apply {
+        ExoPlayer.Builder(applicationContext).build().apply {
             setAudioAttributes(audioAttrs, HANDLE_AUDIO_FOCUS)
             setHandleAudioBecomingNoisy(HANDLE_NOISY)
             addListener(this@MediaService)
         }
     }
-    private val dataSourceFactory: DefaultDataSourceFactory by lazy {
-        DefaultDataSourceFactory(applicationContext, Util.getUserAgent(applicationContext, getString(Strings.app_name)))
+
+    private val dataSourceFactory: DataSource.Factory by lazy {
+        DefaultDataSource.Factory(applicationContext)
     }
 
     /** Service lifecycle methods */
@@ -161,7 +164,12 @@ open class MediaService : MediaBrowserServiceCompat(),
 
     /** MediaSessionConnector.PlaybackPreparer methods */
 
-    override fun onCommand(player: Player, controlDispatcher: ControlDispatcher, command: String, extras: Bundle?, cb: ResultReceiver?) = false
+    override fun onCommand(
+        player: Player,
+        command: String,
+        extras: Bundle?,
+        cb: ResultReceiver?
+    ) = false
 
     override fun onPrepareFromSearch(query: String, playWhenReady: Boolean, extras: Bundle?) = Unit
 
