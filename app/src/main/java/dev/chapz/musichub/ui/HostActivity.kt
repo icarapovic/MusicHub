@@ -67,6 +67,7 @@ class HostActivity : AppCompatActivity() {
         viewModel.nowPlaying.observe(this) { metadata ->
             if(metadata != NOTHING_PLAYING) {
                 ui.playbackControls.visibility = View.VISIBLE
+                ui.playPause.visibility = View.VISIBLE
 
                 if(metadata.displayIconUri != Uri.EMPTY) {
                     ui.albumArt.setImageURI(metadata.displayIconUri)

@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/songs"
-        android:title="@string/menu_item_songs"
-        android:icon="@drawable/ic_song"/>
+    <item android:id="@+id/home"
+        android:title="@string/menu_item_home"
+        android:icon="@drawable/ic_home"/>
 
-    <item android:id="@+id/albums"
-        android:title="@string/menu_item_album"
-        android:icon="@drawable/ic_album"/>
+    <item android:id="@+id/search"
+        android:title="@string/menu_item_search"
+        android:icon="@drawable/ic_search"/>
 
-    <item android:id="@+id/artists"
-        android:title="@string/menu_item_artist"
-        android:icon="@drawable/ic_artist"/>
-
-    <item android:id="@+id/genres"
-        android:title="@string/menu_item_genre"
-        android:icon="@drawable/ic_genre"/>
-
-    <item android:id="@+id/playlists"
-        android:title="@string/menu_item_playlists"
-        android:icon="@drawable/ic_playlist"/>
+    <item android:id="@+id/library"
+        android:title="@string/menu_item_library"
+        android:icon="@drawable/ic_library"/>
 </menu>
