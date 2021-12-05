@@ -1,6 +1,7 @@
 package dev.chapz.musichub
 
 import android.app.Application
+import com.google.android.material.color.DynamicColors
 import dev.chapz.musichub.repository.*
 import dev.chapz.musichub.service.MediaServiceConnection
 import dev.chapz.musichub.ui.HostViewModel
@@ -32,6 +33,8 @@ class MusicApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        DynamicColors.applyToActivitiesIfAvailable(this)
 
         startKoin {
             androidLogger()
